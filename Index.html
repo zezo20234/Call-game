@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>RetroCall App</title>
+  <style>
+    body {
+      font-family: monospace;
+      text-align: center;
+      background: #111;
+      color: white;
+      margin: 0;
+      padding: 0;
+    }
+    #loginScreen, #mainApp {
+      display: none;
+      padding: 20px;
+    }
+    #loginScreen {
+      display: block;
+    }
+    input {
+      font-size: 18px;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+    }
+    button {
+      font-size: 18px;
+      padding: 10px 20px;
+      margin-top: 10px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    #screen {
+      margin: 20px auto;
+      padding: 20px;
+      font-size: 28px;
+      border: 2px solid #0f0;
+      width: 200px;
+      height: 50px;
+      background: black;
+      color: #0f0;
+    }
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 60px);
+      gap: 10px;
+      justify-content: center;
+    }
+    #callStatus {
+      margin-top: 20px;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loginScreen">
+    <h2>📱 Enter Your Number</h2>
+    <input type="text" id="loginInput" placeholder="e.g. 101" />
+    <br>
+    <button onclick="login()">Login</button>
+    <p id="loginError" style="color: red;"></p>
+  </div>
+
+  <div id="mainApp">
+    <h1>📞 RetroCall</h1>
+    <p>Logged in as: <strong id="currentUserName"></strong> (Number: <span id="currentUserNumber"></span>)</p>
+
+    <div id="screen"></div>
+
+    <div class="keypad">
+      <button onclick="press('1')">1</button>
+      <button onclick="press('2')">2</button>
+      <button onclick="press('3')">3</button>
+      <button onclick="press('4')">4</button>
+      <button onclick="press('5')">5</button>
+      <button onclick="press('6')">6</button>
+      <button onclick="press('7')">7</button>
+      <button onclick="press('8')">8</button>
+      <button onclick="press('9')">9</button>
+      <button onclick="clearScreen()">C</button>
+      <button onclick="press('0')">0</button>
+      <button onclick="call()">📞</button>
+    </div>
+
+    <div id="callStatus"></div>
+  </div>
+
+  <audio id="ringtone" src="https://www.soundjay.com/phone/telephone-ring-01a.mp3" preload="auto"></audio>
+
+  <script>
+    let number = "";
+    let loggedInNumber = "";
+
+    const assignedNumbers = {
+      "101": "Layan",
+      "102": "Asser",
+      "103": "Zezo",
+      "911": "Police 🚨"
+    };
+
+    function login() {
+      const input = document.getElementById("loginInput").value.trim();
+      if (assignedNumbers[input] && input !== "911") {
+        loggedInNumber = input;
+        document.getElementById("currentUserName").innerText = assignedNumbers[input];
+        document.getElementById("currentUserNumber").innerText = input;
+        document.getElementById("loginScreen").style.display = "none";
+        document.getElementById("mainApp").style.display = "block";
+      } else {
+        document.getElementById("loginError").innerText = "❌ Invalid number. Use 101, 102, or 103.";
+      }
+    }
+
+    function press(num) {
+      if (number.length < 10) {
+        number += num;
+        updateScreen();
+      }
+    }
+
+    function updateScreen() {
+      document.getElementById("screen").innerText = number;
+    }
+
+    function clearScreen() {
+      number = "";
+      updateScreen();
+      document.getElementById("callStatus").innerText = "";
+    }
+
+    function call() {
+      const contact = assignedNumbers[number];
+      if (contact) {
+        if (number === loggedInNumber) {
+          document.getElementById("callStatus").innerText = "📵 Can't call yourself!";
+          return;
+        }
+        document.getElementById("callStatus").innerText = `📞 Calling ${contact}...`;
+        document.getElementById("ringtone").play();
+      } else {
+        document.getElementById("callStatus").innerText = "❌ Number not found";
+      }
+    }
+  </script>
+
+</body>
+</html>
