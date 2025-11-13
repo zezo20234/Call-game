@@ -1,589 +1,345 @@
 <!doctype html>
-<html lang="en">
+<html>
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Calendar (Admin / Hack demo)</title>
-<style>
-  :root{
-    --bg:#0b0b0b;
-    --panel:#0f1720;
-    --muted:#9aa4b2;
-    --accent:#06b6d4;
-    --success:#22c55e;
-    --danger:#ef4444;
-    --white:#fff;
-  }
-  html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;}
-  body{background:#ffffff;display:flex;align-items:center;justify-content:center;padding:20px;}
-  /* initial white blank look */
-  #mainBlank{width:100%;max-width:980px;height:640px;background:#fff;border:2px solid #eee;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;}
-  .topActions{display:flex;gap:14px;position:absolute;top:18px;left:18px;}
-  .btn{padding:10px 16px;border-radius:8px;border:0;cursor:pointer;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
-  .btn-code{background:#1f2937;color:var(--white)}
-  .btn-hack{background:#0f1720;color:var(--success)}
-  .titleBig{font-size:20px;font-weight:700;color:#111;margin-bottom:8px;}
-  .sub{color:#666;font-size:13px}
-  /* calendar container (hidden until unlocked) */
-  #calendarApp{display:none;width:100%;height:100%;background:linear-gradient(180deg,#0f1720,#071021);color:var(--white);padding:18px;box-sizing:border-box;border-radius:8px;}
-  .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
-  .nav{display:flex;gap:8px;align-items:center;}
-  .nav button{background:transparent;border:1px solid rgba(255,255,255,0.06);color:inherit;padding:8px 10px;border-radius:8px;cursor:pointer}
-  .monthYear{font-size:18px;font-weight:700}
-  .layout{display:grid;grid-template-columns:1fr 320px;gap:14px;height:calc(100% - 62px);}
-  .calendarPanel{background:rgba(255,255,255,0.03);padding:12px;border-radius:10px;display:flex;flex-direction:column}
-  .weekDays{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;color:var(--muted);font-size:12px;margin-bottom:6px}
-  .daysGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;flex:1}
-  .dayCell{padding:10px;border-radius:8px;min-height:64px;background:transparent;cursor:pointer;position:relative;color:var(--white);box-sizing:border-box}
-  .dayNumber{font-weight:700}
-  .dayCell:hover{outline:1px solid rgba(255,255,255,0.04)}
-  .today{box-shadow:0 0 0 2px rgba(6,182,212,0.12);border-radius:8px}
-  .hasEventDot{position:absolute;right:8px;bottom:8px;width:10px;height:10px;border-radius:50%;background:var(--accent)}
-  .sidebar{background:rgba(255,255,255,0.02);padding:12px;border-radius:10px;display:flex;flex-direction:column}
-  .addBtn{background:var(--accent);color:#063; border:0;padding:10px;border-radius:8px;cursor:pointer;font-weight:700;margin-bottom:8px}
-  .list{overflow:auto;flex:1;padding-right:6px}
-  .eventItem{background:rgba(255,255,255,0.02);padding:8px;border-radius:8px;margin-bottom:8px}
-  .small{font-size:12px;color:var(--muted)}
-  /* modal */
-  .modalBg{position:fixed;inset:0;background:rgba(2,6,23,0.6);display:none;align-items:center;justify-content:center;z-index:50}
-  .modal{background:#0b1220;padding:16px;border-radius:12px;min-width:320px;color:var(--white)}
-  .formRow{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
-  input,textarea,select{background:#071126;border:1px solid rgba(255,255,255,0.04);padding:8px;border-radius:8px;color:var(--white);outline:0}
-  textarea{min-height:80px;resize:vertical}
-  /* hack overlay */
-  .hackOverlay{position:absolute;inset:0;background:#000;display:none;align-items:center;justify-content:center;z-index:40;flex-direction:column;color:var(--success)}
-  .terminal{background:#041018;padding:18px;border-radius:12px;width:92%;max-width:720px;min-height:220px;box-shadow:0 10px 40px rgba(2,6,23,0.6);font-family: 'Courier New', monospace;color:var(--success);display:flex;flex-direction:column;gap:12px}
-  .greenNum{font-size:22px;font-weight:800;letter-spacing:2px}
-  .progressBar{height:8px;background:rgba(255,255,255,0.04);border-radius:999px;overflow:hidden}
-  .progressFill{height:100%;background:linear-gradient(90deg,var(--success),#66ffb2);width:0%}
-  .mutedSmall{color:#6b7280;font-size:13px}
-  .danger{color:var(--danger)}
-  /* responsive */
-  @media (max-width:860px){ .layout{grid-template-columns:1fr} .sidebar{order:2} .calendarPanel{order:1} }
-</style>
+  <meta charset="utf-8" />
+  <title>NFC Inspector — Production</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{font-family:system-ui,Segoe UI,Roboto,Arial;line-height:1.45}
+    body{max-width:980px;margin:18px auto;padding:18px}
+    h1{margin:0 0 6px}
+    .muted{color:#555;font-size:0.95rem}
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}
+    button{padding:10px 14px;font-size:15px;border-radius:8px;border:1px solid #ccc;background:#f5f5f5;cursor:pointer}
+    button.primary{background:#0078d4;color:white;border-color:#0063b1}
+    button.warn{background:#ffefef;border-color:#f2b8b8}
+    input,textarea,select{padding:8px;border-radius:6px;border:1px solid #ccc;font-size:14px;width:100%}
+    textarea{min-height:100px;font-family:monospace}
+    .panel{border:1px solid #e6e6e6;padding:12px;border-radius:10px;background:#fff}
+    pre{background:#f7f7f7;padding:10px;border-radius:8px;overflow:auto;white-space:pre-wrap}
+    label{font-weight:600;font-size:0.95rem}
+    small.note{display:block;color:#666;margin-top:6px}
+    .flex{display:flex;gap:10px}
+    .col{flex:1}
+    .split{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .inline{display:inline-flex;gap:8px;align-items:center}
+    footer{margin-top:18px;color:#444;font-size:0.9rem}
+    a.link{color:#0066cc}
+    .success{color:green}
+    .error{color:#b00020}
+    .badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#eee}
+    .field{margin-top:8px}
+  </style>
 </head>
 <body>
+  <h1>NFC Inspector — Production</h1>
+  <div class="muted">Use <strong>Chrome on Android</strong>. Host via HTTPS (GitHub Pages). This page reads and writes NDEF records and exports backups. Read the README for deployment and compatibility notes.</div>
 
-<div id="mainBlank">
-  <div class="topActions">
-    <button class="btn btn-code" id="btnCode">Code</button>
-    <button class="btn btn-hack" id="btnHack">Hack</button>
-  </div>
-
-  <div style="text-align:center;">
-    <div class="titleBig">Welcome</div>
-    <div class="sub">This page is protected. Admins can unlock with code or users can choose to "hack" (7 minutes simulated).</div>
-  </div>
-
-  <!-- Hack overlay (simulated) -->
-  <div class="hackOverlay" id="hackOverlay">
-    <div class="terminal" id="terminal">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div><strong>Simulated Hack Engine</strong></div>
-        <div class="mutedSmall">Connection: OK</div>
-      </div>
-      <div id="terminalLines" style="min-height:80px">
-        <div>Initializing hack sequence...</div>
-        <div class="greenNum" id="greenCount">0%</div>
-        <div class="mutedSmall" id="timeLeft">7:00 minutes remaining</div>
-      </div>
-      <div class="progressBar"><div class="progressFill" id="progressFill"></div></div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div class="mutedSmall" id="termLog">Brute force starting</div>
-        <div><button class="btn" id="cancelHack" style="background:#111;color:var(--muted)">Cancel</button></div>
-      </div>
+  <div class="panel" style="margin-top:12px">
+    <div class="row">
+      <button id="readOnce" class="primary">Read once (tap tag)</button>
+      <button id="startScan">Start continuous scan</button>
+      <button id="stopScan">Stop scan</button>
+      <button id="exportBackup">Export last backup</button>
+      <button id="importBackup">Import & write backup</button>
     </div>
-  </div>
 
-  <!-- Calendar app (hidden until unlocked) -->
-  <div id="calendarApp">
-    <div class="header">
+    <div class="split">
       <div>
-        <div class="monthYear" id="monthYearLabel">Month Year</div>
-        <div class="small">Admin view — add, edit and delete events</div>
+        <label>Tag summary</label>
+        <pre id="tagSummary">No tag scanned yet.</pre>
+        <div class="field"><label>UID / serialNumber (hex)</label><div id="uidHex" class="badge">—</div></div>
+        <div class="field"><label>Records count</label><div id="recCount" class="badge">0</div></div>
       </div>
-      <div class="nav">
-        <button id="prevMonth">&larr;</button>
-        <button id="nextMonth">&rarr;</button>
-        <button id="jumpToday">Today</button>
-        <button id="logoutBtn" style="background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px;border-radius:8px;color:#fff">Logout</button>
+
+      <div>
+        <label>Parsed records</label>
+        <pre id="records">—</pre>
       </div>
     </div>
 
-    <div class="layout">
-      <div class="calendarPanel">
-        <div class="weekDays">
-          <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+    <hr />
+
+    <div>
+      <label>Write controls</label>
+      <div class="row">
+        <div style="flex:1">
+          <small>Text record</small>
+          <input id="textPayload" placeholder="Hello — POINTS: 9999 (prank)" />
         </div>
-        <div class="daysGrid" id="daysGrid"></div>
+        <div style="flex:1">
+          <small>URL record</small>
+          <input id="urlPayload" placeholder="https://example.com/prank" />
+        </div>
       </div>
 
-      <div class="sidebar">
-        <button class="addBtn" id="openAdd">+ Add event</button>
-        <div class="small" style="margin-bottom:8px">Selected date: <span id="selectedDateLabel">—</span></div>
-        <div class="list" id="eventsList">
-          <div class="mutedSmall">No events yet.</div>
+      <div class="row" style="margin-top:8px">
+        <button id="writeText">Write Text</button>
+        <button id="writeUrlBtn">Write URL</button>
+        <button id="writeMulti">Write Multi-record (Text+URL)</button>
+        <button id="clearTag" class="warn">Clear / Empty</button>
+      </div>
+
+      <div style="margin-top:10px">
+        <label>Custom record (advanced)</label>
+        <div class="row">
+          <select id="customType" style="width:200px">
+            <option value="text">text</option>
+            <option value="url">url</option>
+            <option value="mime">mime</option>
+            <option value="unknown">unknown (base64)</option>
+          </select>
+          <input id="customMime" placeholder="mime/type for mime" style="width:220px" />
+          <input id="customPayload" placeholder="payload text or base64" />
+          <button id="writeCustom">Write custom</button>
         </div>
+        <small class="note">Writing requires a user gesture & permission dialog. If write fails, the tag may be locked or non-NDEF.</small>
       </div>
     </div>
+
+    <hr />
+
+    <div>
+      <label>Log</label>
+      <pre id="log">Ready.</pre>
+    </div>
+
+    <input type="file" id="importFile" accept=".json" style="display:none" />
   </div>
 
-</div>
-
-<!-- modal -->
-<div class="modalBg" id="modalBg">
-  <div class="modal">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <div style="font-weight:800" id="modalTitle">Add Event</div>
-      <div style="font-size:12px;color:var(--muted)" id="modalHint">Admin</div>
-    </div>
-    <div class="formRow">
-      <label class="small">Title</label>
-      <input id="evtTitle" placeholder="Event title"/>
-    </div>
-    <div class="formRow">
-      <label class="small">Description</label>
-      <textarea id="evtDesc" placeholder="Details..."></textarea>
-    </div>
-    <div class="formRow" style="flex-direction:row;gap:8px">
-      <div style="flex:1">
-        <label class="small">Year</label>
-        <select id="selYear"></select>
-      </div>
-      <div style="flex:1">
-        <label class="small">Month</label>
-        <select id="selMonth"></select>
-      </div>
-    </div>
-    <div class="formRow" style="flex-direction:row;gap:8px">
-      <div style="flex:1">
-        <label class="small">Day</label>
-        <select id="selDay"></select>
-      </div>
-      <div style="flex:1">
-        <label class="small">Time (HH:MM)</label>
-        <input id="evtTime" placeholder="15:30"/>
-      </div>
-    </div>
-
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
-      <button class="btn" id="closeModal" style="background:#111;color:var(--muted)">Cancel</button>
-      <button class="btn" id="saveEvent" style="background:var(--accent);color:#012">Save</button>
-    </div>
-  </div>
-</div>
-
-<!-- Firebase SDK (compat) -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <footer>
+    <p>Remember: this modifies the physical tag only. Server-validated game scores cannot be changed by editing a tag. Use only on tags you own.</p>
+  </footer>
 
 <script>
-/* =======================
-   Put your Firebase config here (you gave this in the message)
-   ======================= */
-const firebaseConfig = {
-  apiKey: "AIzaSyAdmiUcQ_yZDL4Gg0r93HjqzPYQ6N-gzM8",
-  authDomain: "the-challenge-fa9b2.firebaseapp.com",
-  databaseURL: "https://the-challenge-fa9b2-default-rtdb.firebaseio.com",
-  projectId: "the-challenge-fa9b2",
-  storageBucket: "the-challenge-fa9b2.firebasestorage.app",
-  messagingSenderId: "4102830619",
-  appId: "1:4102830619:web:581e033f36ec02708916be",
-  measurementId: "G-7M7JLK1V86"
-};
+(function(){
+  const logEl = document.getElementById('log');
+  const tagSummaryEl = document.getElementById('tagSummary');
+  const recordsEl = document.getElementById('records');
+  const uidEl = document.getElementById('uidHex');
+  const recCountEl = document.getElementById('recCount');
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-/* ====== UI shortcuts ====== */
-const btnCode = document.getElementById('btnCode');
-const btnHack = document.getElementById('btnHack');
-const hackOverlay = document.getElementById('hackOverlay');
-const terminalLines = document.getElementById('terminalLines');
-const greenCount = document.getElementById('greenCount');
-const timeLeftLabel = document.getElementById('timeLeft');
-const progressFill = document.getElementById('progressFill');
-const cancelHack = document.getElementById('cancelHack');
-const modalBg = document.getElementById('modalBg');
-const openAdd = document.getElementById('openAdd');
-const calendarApp = document.getElementById('calendarApp');
-const mainBlank = document.getElementById('mainBlank');
-const btnLogout = document.getElementById('logoutBtn');
-
-let sessionHackUnlocked = false; // will be true after a successful hack in this session
-const HACK_SECONDS = 7 * 60; // 7 minutes
-let hackInterval = null;
-
-/* Helper: format number two digits */
-function pad(n){return (n<10? '0':'')+n}
-
-/* --- Code button flow (admin code: 555) --- */
-btnCode.addEventListener('click', async () => {
-  const code = prompt('Enter admin code:');
-  if(code === null) return;
-  if(code.trim() === '555'){
-    localStorage.setItem('isAdmin','1'); // persistent admin
-    revealCalendar();
-    alert('Admin code accepted — calendar unlocked.');
-  } else {
-    alert('Wrong code.');
+  function log(...args){
+    const line = args.map(a => (typeof a === 'object')? JSON.stringify(a,null,2): String(a)).join(' ');
+    logEl.textContent += '\n' + line;
+    logEl.scrollTop = logEl.scrollHeight;
+    console.log(...args);
   }
-});
 
-/* --- Hack flow --- */
-btnHack.addEventListener('click', () => {
-  // Always require the 7-minute simulation fresh each time (per your "every time they enter")
-  startHackSimulation();
-});
-
-cancelHack.addEventListener('click', () => {
-  stopHackSimulation(true);
-});
-
-function startHackSimulation(){
-  if(hackInterval) return;
-  // show overlay
-  hackOverlay.style.display = 'flex';
-  // start with full seconds
-  let startedAt = Date.now();
-  let secondsTotal = HACK_SECONDS;
-  // Save start time in sessionStorage so that reload keeps progress during this tab session
-  sessionStorage.setItem('hackStart', startedAt.toString());
-
-  function tick(){
-    const now = Date.now();
-    const elapsed = Math.floor((now - startedAt)/1000);
-    const remaining = Math.max(0, secondsTotal - elapsed);
-    const pct = Math.floor((elapsed / secondsTotal) * 100);
-    greenCount.textContent = pct + '%';
-    timeLeftLabel.textContent = Math.floor(remaining/60) + ':' + pad(remaining%60) + ' remaining';
-    progressFill.style.width = pct + '%';
-    // animated terminal lines (fake)
-    const fakeLine = generateFakeLine();
-    document.getElementById('termLog').textContent = fakeLine;
-
-    if(remaining <= 0){
-      completeHack();
-      return;
+  function hexFromSerial(serial){
+    if (!serial) return '—';
+    try {
+      // serialNumber from Web NFC might already be hex-like; normalize
+      return Array.from(new TextEncoder().encode(serial)).map(b => b.toString(16).padStart(2,'0')).join(' ');
+    } catch(e){
+      return serial;
     }
   }
-  tick();
-  hackInterval = setInterval(tick, 1000);
-}
 
-/* If user reloads page but still in same session and hack started, resume */
-(function resumeHackIfInProgress(){
-  const s = sessionStorage.getItem('hackStart');
-  if(s){
-    const startedAt = parseInt(s,10);
-    const elapsed = Math.floor((Date.now() - startedAt)/1000);
-    if(elapsed < HACK_SECONDS){
-      // resume
-      startHackSimulation();
+  function parseRecords(message){
+    if (!message || !message.records) return [];
+    const out = [];
+    for (const r of message.records){
+      const rec = {recordType: r.recordType, mediaType: r.mediaType || null, id: r.id || null};
+      try {
+        if (r.recordType === 'text') {
+          const td = new TextDecoder(r.encoding || 'utf-8');
+          rec.text = td.decode(r.data);
+        } else if (r.recordType === 'url') {
+          const td = new TextDecoder();
+          rec.url = td.decode(r.data);
+        } else if (r.recordType === 'mime') {
+          const td = new TextDecoder();
+          rec.mimeText = td.decode(r.data);
+          rec.payloadBase64 = btoa(String.fromCharCode(...new Uint8Array(r.data.buffer || r.data)));
+        } else {
+          rec.payloadBase64 = btoa(String.fromCharCode(...new Uint8Array(r.data.buffer || r.data)));
+        }
+      } catch(e){
+        rec.error = String(e);
+      }
+      out.push(rec);
+    }
+    return out;
+  }
+
+  let lastMessage = null;
+  let lastSerial = null;
+  let reader = null;
+
+  async function readOnce(){
+    if (!('NDEFReader' in window)) { alert('Web NFC not available. Use Chrome on Android.'); return; }
+    try {
+      const temp = new NDEFReader();
+      log('Waiting to read — tap tag now.');
+      await temp.scan();
+      temp.onreading = ev => {
+        lastSerial = ev.serialNumber || null;
+        lastMessage = ev.message;
+        const parsed = parseRecords(ev.message);
+        const summary = {serialNumber: lastSerial, records: parsed, timestamp: new Date().toISOString()};
+        tagSummaryEl.textContent = JSON.stringify(summary, null, 2);
+        recordsEl.textContent = JSON.stringify(parsed, null, 2);
+        uidEl.textContent = hexFromSerial(lastSerial);
+        recCountEl.textContent = (ev.message.records || []).length;
+        log('Read OK', summary);
+        temp.onreading = null;
+        temp.onreadingerror = null;
+      };
+      temp.onreadingerror = () => log('Read error.');
+    } catch(err){
+      log('ReadOnce failed: ' + String(err));
+      alert('Read failed: ' + String(err));
+    }
+  }
+
+  async function startScan(){
+    if (!('NDEFReader' in window)) { alert('Web NFC not available. Use Chrome on Android.'); return; }
+    try {
+      reader = new NDEFReader();
+      await reader.scan();
+      reader.onreading = ev => {
+        lastSerial = ev.serialNumber || null;
+        lastMessage = ev.message;
+        const parsed = parseRecords(ev.message);
+        const summary = {serialNumber: lastSerial, records: parsed, timestamp: new Date().toISOString()};
+        tagSummaryEl.textContent = JSON.stringify(summary, null, 2);
+        recordsEl.textContent = JSON.stringify(parsed, null, 2);
+        uidEl.textContent = hexFromSerial(lastSerial);
+        recCountEl.textContent = (ev.message.records || []).length;
+        log('Tag read (continuous)', summary);
+      };
+      reader.onreadingerror = () => log('Continuous read error.');
+      log('Continuous scan started — keep the page open and tap tags.');
+    } catch(err){
+      log('StartScan failed: ' + String(err));
+      alert('Start scan failed: ' + String(err));
+    }
+  }
+
+  function stopScan(){
+    if (!reader) { log('No active scan.'); return; }
+    reader.onreading = null;
+    reader.onreadingerror = null;
+    reader = null;
+    log('Scan stopped.');
+  }
+
+  async function writeRecords(records){
+    if (!('NDEFReader' in window)) { alert('Web NFC not available. Use Chrome on Android.'); return; }
+    try {
+      const w = new NDEFReader();
+      log('Tap a tag to write... (you will be prompted for permission)');
+      await w.write({records});
+      log('Write completed successfully.');
+    } catch(err){
+      log('Write failed: ' + String(err));
+      alert('Write failed: ' + String(err));
+    }
+  }
+
+  document.getElementById('readOnce').addEventListener('click', readOnce);
+  document.getElementById('startScan').addEventListener('click', startScan);
+  document.getElementById('stopScan').addEventListener('click', stopScan);
+
+  document.getElementById('writeText').addEventListener('click', async () => {
+    const text = document.getElementById('textPayload').value || 'POINTS: 9999 (prank)';
+    await writeRecords([{recordType:'text', data: text}]);
+  });
+  document.getElementById('writeUrlBtn').addEventListener('click', async () => {
+    const url = document.getElementById('urlPayload').value || 'https://example.com/prank';
+    await writeRecords([{recordType:'url', data: url}]);
+  });
+  document.getElementById('writeMulti').addEventListener('click', async () => {
+    const text = document.getElementById('textPayload').value || 'POINTS: 9999 (prank)';
+    const url = document.getElementById('urlPayload').value || 'https://example.com/prank';
+    await writeRecords([{recordType:'text', data: text},{recordType:'url', data: url}]);
+  });
+  document.getElementById('clearTag').addEventListener('click', async () => {
+    try {
+      const w = new NDEFReader();
+      await w.write({records: []});
+      log('Wrote empty message (if supported).');
+    } catch(e){
+      log('Empty write failed, trying empty text record...');
+      try {
+        const w2 = new NDEFReader();
+        await w2.write({records:[{recordType:'text', data:''}]});
+        log('Wrote empty text record.');
+      } catch(e2){
+        log('Clear fallback failed: ' + String(e2));
+      }
+    }
+  });
+
+  document.getElementById('writeCustom').addEventListener('click', async () => {
+    const type = document.getElementById('customType').value;
+    const mime = document.getElementById('customMime').value;
+    const payload = document.getElementById('customPayload').value || '';
+    if (type === 'text') {
+      await writeRecords([{recordType:'text', data: payload}]);
+    } else if (type === 'url') {
+      await writeRecords([{recordType:'url', data: payload}]);
+    } else if (type === 'mime') {
+      if (!mime) { alert('Enter mime type'); return; }
+      await writeRecords([{recordType:'mime', mediaType: mime, data: payload}]);
     } else {
-      // already finished in this session (rare), set session unlocked and remove start
-      sessionStorage.removeItem('hackStart');
-      sessionHackUnlocked = true;
-      revealCalendarSession();
+      if (!payload) { alert('Enter base64 payload'); return; }
+      const binary = atob(payload);
+      const arr = new Uint8Array(binary.length);
+      for (let i=0;i<binary.length;i++) arr[i] = binary.charCodeAt(i);
+      await writeRecords([{recordType:'unknown', data: arr}]);
     }
-  }
+  });
+
+  // export/import backup
+  document.getElementById('exportBackup').addEventListener('click', () => {
+    if (!lastMessage) { alert('No tag scanned yet.'); return; }
+    const parsed = parseRecords(lastMessage);
+    const backup = {serialNumber: lastSerial, timestamp: new Date().toISOString(), records: parsed};
+    const blob = new Blob([JSON.stringify(backup,null,2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'nfc-backup-'+Date.now()+'.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    log('Backup exported.');
+  });
+
+  document.getElementById('importBackup').addEventListener('click', () => {
+    document.getElementById('importFile').click();
+  });
+
+  document.getElementById('importFile').addEventListener('change', async (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const text = await f.text();
+    let obj;
+    try { obj = JSON.parse(text); } catch(e){ alert('Invalid JSON'); return; }
+    if (!obj.records || !obj.records.length) { alert('No records found in backup'); return; }
+    const records = [];
+    for (const r of obj.records){
+      if (r.recordType === 'text') records.push({recordType:'text', data: r.text || ''});
+      else if (r.recordType === 'url') records.push({recordType:'url', data: r.url || ''});
+      else if (r.recordType === 'mime') records.push({recordType:'mime', mediaType: r.mediaType || '', data: r.mimeText || ''});
+      else {
+        const b64 = r.payloadBase64 || '';
+        if (!b64) continue;
+        const binary = atob(b64);
+        const arr = new Uint8Array(binary.length);
+        for (let i=0;i<binary.length;i++) arr[i] = binary.charCodeAt(i);
+        records.push({recordType:'unknown', data: arr});
+      }
+    }
+    if (!records.length) { alert('No writable records parsed'); return; }
+    if (!confirm('This will write the imported records to a tag. Continue?')) return;
+    await writeRecords(records);
+  });
+
+  // initial UI
+  tagSummaryEl.textContent = 'No tag scanned yet. Use "Read once" or "Start continuous scan".';
 })();
-
-function stopHackSimulation(asCancel=false){
-  if(hackInterval) clearInterval(hackInterval);
-  hackInterval = null;
-  sessionStorage.removeItem('hackStart');
-  hackOverlay.style.display = 'none';
-  progressFill.style.width = '0%';
-  greenCount.textContent = '0%';
-  timeLeftLabel.textContent = '7:00 minutes remaining';
-  if(asCancel){
-    document.getElementById('termLog').textContent = 'Hack aborted.';
-  }
-}
-
-function completeHack(){
-  stopHackSimulation(false);
-  sessionHackUnlocked = true; // unlocked for this session only
-  revealCalendarSession();
-  alert('Hack complete! You can now see the calendar for this session.');
-}
-
-/* Fake terminal generator */
-function generateFakeLine(){
-  const words = [
-    'scanning','brute-forcing','decrypting','bypassing','alloc','memchk','xor','auth','ping','sync','handshake','port-scan','inject','seed','running','payload'
-  ];
-  const a = words[Math.floor(Math.random()*words.length)];
-  const b = Math.floor(Math.random()*99999);
-  return `${a}... id:${b}`;
-}
-
-/* ==== Unlock and UI behavior ==== */
-function revealCalendar(){
-  // full admin persistent unlock
-  mainBlank.style.display = 'none';
-  calendarApp.style.display = 'block';
-  initializeCalendar();
-}
-
-function revealCalendarSession(){
-  // only for this session (hacked)
-  mainBlank.style.display = 'none';
-  calendarApp.style.display = 'block';
-  initializeCalendar();
-}
-
-/* Logout clears admin localStorage and reloads to start screen */
-btnLogout.addEventListener('click', () => {
-  localStorage.removeItem('isAdmin');
-  // clearing session hack too
-  sessionHackUnlocked = false;
-  location.reload();
-});
-
-/* If a persistent admin exists, auto-unlock */
-if(localStorage.getItem('isAdmin')){
-  revealCalendar();
-}
-
-/* ========== Calendar logic ========== */
-const daysGrid = document.getElementById('daysGrid');
-const monthYearLabel = document.getElementById('monthYearLabel');
-const selectedDateLabel = document.getElementById('selectedDateLabel');
-const eventsList = document.getElementById('eventsList');
-
-let viewDate = new Date(); // the month/year we show
-let selectedDate = new Date(); // selected day
-let eventsCache = {}; // local cache of events from firebase: { id: eventObj }
-
-document.getElementById('prevMonth').addEventListener('click', ()=> { viewDate.setMonth(viewDate.getMonth()-1); renderCalendar(); });
-document.getElementById('nextMonth').addEventListener('click', ()=> { viewDate.setMonth(viewDate.getMonth()+1); renderCalendar(); });
-document.getElementById('jumpToday').addEventListener('click', ()=> { viewDate = new Date(); selectedDate = new Date(); renderCalendar(); updateSelectedDate(); });
-
-document.getElementById('openAdd').addEventListener('click', ()=> openAddModal());
-
-/* modal controls */
-document.getElementById('closeModal').addEventListener('click', ()=> { modalBg.style.display='none'; });
-document.getElementById('saveEvent').addEventListener('click', saveEvent);
-
-/* populate year/month selects */
-const selYear = document.getElementById('selYear');
-const selMonth = document.getElementById('selMonth');
-const selDay = document.getElementById('selDay');
-
-function fillYearMonthDaySelectors(y,m,d){
-  selYear.innerHTML = '';
-  const currentYear = new Date().getFullYear();
-  for(let yy = currentYear - 5; yy <= currentYear + 5; yy++){
-    const opt = document.createElement('option'); opt.value=yy; opt.textContent=yy;
-    if(yy===y) opt.selected=true;
-    selYear.appendChild(opt);
-  }
-  selMonth.innerHTML = '';
-  for(let mm=0; mm<12; mm++){
-    const opt = document.createElement('option'); opt.value=mm; opt.textContent = new Date(0,mm).toLocaleString(undefined,{month:'long'});
-    if(mm===m) opt.selected=true;
-    selMonth.appendChild(opt);
-  }
-  populateDays(y,m,d);
-}
-
-function populateDays(y,m,selectedD){
-  selDay.innerHTML = '';
-  const days = new Date(y,m+1,0).getDate();
-  for(let dd=1; dd<=days; dd++){
-    const opt = document.createElement('option'); opt.value=dd; opt.textContent=dd;
-    if(dd===selectedD) opt.selected=true;
-    selDay.appendChild(opt);
-  }
-}
-
-/* open add modal with defaults */
-function openAddModal(editObj){
-  // editObj optional {id, title, desc, year, month, day, time}
-  modalBg.style.display='flex';
-  document.getElementById('modalTitle').textContent = editObj ? 'Edit Event' : 'Add Event';
-  document.getElementById('evtTitle').value = editObj ? editObj.title : '';
-  document.getElementById('evtDesc').value = editObj ? editObj.description : '';
-  const y = editObj ? editObj.year : selectedDate.getFullYear();
-  const m = editObj ? editObj.month : selectedDate.getMonth();
-  const d = editObj ? editObj.day : selectedDate.getDate();
-  fillYearMonthDaySelectors(y,m,d);
-  document.getElementById('evtTime').value = editObj ? editObj.time : (('00'+selectedDate.getHours()).slice(-2)+':'+('00'+selectedDate.getMinutes()).slice(-2));
-  // if editing, attach id for save
-  document.getElementById('saveEvent').dataset.editId = editObj ? editObj.id : '';
-}
-
-/* create / update event */
-function saveEvent(){
-  const title = document.getElementById('evtTitle').value.trim();
-  const desc = document.getElementById('evtDesc').value.trim();
-  const year = parseInt(selYear.value,10);
-  const month = parseInt(selMonth.value,10);
-  const day = parseInt(selDay.value,10);
-  let time = document.getElementById('evtTime').value.trim();
-  if(!/^\d{1,2}:\d{2}$/.test(time)){
-    alert('Time format must be HH:MM');
-    return;
-  }
-  // normalize to HH:MM
-  const parts = time.split(':');
-  const hh = Math.max(0, Math.min(23, parseInt(parts[0],10)));
-  const mm = Math.max(0, Math.min(59, parseInt(parts[1],10)));
-  time = pad(hh)+':'+pad(mm);
-
-  if(title.length===0){ alert('Please add a title'); return; }
-
-  const editId = document.getElementById('saveEvent').dataset.editId;
-  if(editId){
-    // update existing
-    const ref = db.ref('calendarEvents/' + editId);
-    ref.update({ title, description: desc, year, month, day, time, updatedAt: Date.now() });
-    modalBg.style.display='none';
-    document.getElementById('saveEvent').dataset.editId = '';
-  } else {
-    // push new
-    const newRef = db.ref('calendarEvents').push();
-    newRef.set({ title, description: desc, year, month, day, time, createdAt: Date.now() });
-    modalBg.style.display='none';
-  }
-}
-
-/* load events from firebase and keep local cache */
-function listenEvents(){
-  const ref = db.ref('calendarEvents');
-  ref.on('value', snap => {
-    const val = snap.val() || {};
-    eventsCache = {};
-    Object.keys(val).forEach(id => {
-      eventsCache[id] = Object.assign({ id }, val[id]);
-    });
-    // refresh visuals
-    renderCalendar();
-    updateSelectedDate();
-  });
-}
-
-/* render calendar month */
-function renderCalendar(){
-  daysGrid.innerHTML = '';
-  const y = viewDate.getFullYear();
-  const m = viewDate.getMonth();
-  monthYearLabel.textContent = viewDate.toLocaleString(undefined,{month:'long', year:'numeric'});
-
-  // first day index (0..6)
-  const firstDayIndex = new Date(y,m,1).getDay();
-  const daysInMonth = new Date(y,m+1,0).getDate();
-
-  // previous month filler
-  const prevDays = firstDayIndex;
-  for(let i=0;i<prevDays;i++){
-    const el = document.createElement('div'); el.className='dayCell'; el.style.opacity='0.25'; daysGrid.appendChild(el);
-  }
-  // days
-  for(let d=1; d<=daysInMonth; d++){
-    const el = document.createElement('div'); el.className='dayCell';
-    const dt = new Date(y,m,d);
-    const dayNum = document.createElement('div'); dayNum.className='dayNumber'; dayNum.textContent=d;
-    el.appendChild(dayNum);
-
-    // events indicator
-    const has = hasEventsOn(y,m,d);
-    if(has) {
-      const dot = document.createElement('div'); dot.className='hasEventDot'; el.appendChild(dot);
-    }
-    // highlight today
-    const today = new Date();
-    if(today.getFullYear()===y && today.getMonth()===m && today.getDate()===d){
-      el.classList.add('today');
-    }
-
-    // click to select
-    el.addEventListener('click', ()=> {
-      selectedDate = dt;
-      updateSelectedDate();
-    });
-
-    daysGrid.appendChild(el);
-  }
-}
-
-/* helper: check events for date */
-function hasEventsOn(year,month,day){
-  for(const id in eventsCache){
-    const e = eventsCache[id];
-    if(e.year===year && e.month===month && e.day===day) return true;
-  }
-  return false;
-}
-
-/* update details on selectedDate */
-function updateSelectedDate(){
-  selectedDateLabel.textContent = selectedDate.toDateString();
-  fillYearMonthDaySelectors(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
-  // list events
-  const arr = [];
-  for(const id in eventsCache){
-    const e = eventsCache[id];
-    if(e.year===selectedDate.getFullYear() && e.month===selectedDate.getMonth() && e.day===selectedDate.getDate()){
-      arr.push(Object.assign({id}, e));
-    }
-  }
-  arr.sort((a,b)=> (a.time||'00:00').localeCompare(b.time||'00:00'));
-  eventsList.innerHTML = '';
-  if(arr.length===0) eventsList.innerHTML = '<div class="mutedSmall">No events for selected date.</div>';
-  arr.forEach(e => {
-    const div = document.createElement('div'); div.className='eventItem';
-    div.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
-      <div><strong>${escapeHtml(e.title)}</strong><div class="small">${e.time || ''}</div></div>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <button class="btn" style="padding:6px 8px;font-size:12px" onclick="viewEvent('${e.id}')">View</button>
-        <button class="btn" style="background:#222;color:#fff;padding:6px 8px;font-size:12px" onclick="editEvent('${e.id}')">Edit</button>
-        <button class="btn" style="background:transparent;border:1px solid rgba(255,255,255,0.06);padding:6px 8px;font-size:12px" onclick="deleteEvent('${e.id}')">Delete</button>
-      </div>
-    </div>
-    <div class="small" style="margin-top:6px">${escapeHtml(e.description || '')}</div>`;
-    eventsList.appendChild(div);
-  });
-}
-
-/* view / edit / delete handlers (global so used from inline onclick) */
-window.viewEvent = function(id){
-  const e = eventsCache[id];
-  if(!e) return alert('Event not found');
-  alert(`Title: ${e.title}\nTime: ${e.time}\nDate: ${e.year}-${e.month+1}-${e.day}\n\n${e.description || ''}`);
-}
-
-window.editEvent = function(id){
-  const e = eventsCache[id];
-  if(!e) return alert('Event not found');
-  openAddModal(Object.assign({ id }, e));
-}
-
-window.deleteEvent = function(id){
-  if(!confirm('Delete this event?')) return;
-  db.ref('calendarEvents/' + id).remove();
-}
-
-/* init calendar once visible */
-let calendarInitialized = false;
-function initializeCalendar(){
-  if(calendarInitialized) return;
-  calendarInitialized = true;
-  renderCalendar();
-  updateSelectedDate();
-  listenEvents();
-}
-
-/* small helper to escape HTML for display */
-function escapeHtml(str){ return String(str).replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s])); }
-
-/* On page load make sure session hack is cleared (so hack required each visit unless admin code set) */
-window.addEventListener('load', ()=> {
-  // per spec: hack takes 7 mins each time they enter -> we clear any previous session "unlocked" state
-  sessionHackUnlocked = false;
-});
 </script>
 </body>
 </html>
